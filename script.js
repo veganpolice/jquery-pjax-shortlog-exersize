@@ -11,51 +11,55 @@ exec('git log', (err, stdout, stderr) => {
     const authorMessageArray = logArray.map( logEntry => {
       let author = ''
       let message = ''
+      let email = ''
       const logEntryArray = logEntry.split("\n")
       if(logEntryArray[1]){
         if(logEntryArray[1].startsWith("Author: ")){
           author = logEntryArray[1].substr(8).split(" <")[0]
+          email = logEntryArray[1].split(" <")[1].split(">")[0]
           message = logEntryArray[4]
         } else if (logEntryArray[2].startsWith("Author: ")){
           author = logEntryArray[2].substr(8).split(" <")[0]
+          email = logEntryArray[1].split(" <")[1] ? logEntryArray[1].split(" <")[1].split(">")[0] : "";
           message = logEntryArray[5]
         }
       }
-      return [author, message]
+      return [author, message, email]
     })
 
     const shortLogObject = {}
 
-    const stringy = ''
-    
     for(i = 0; i < authorMessageArray.length; i++){
       if(!shortLogObject[authorMessageArray[i][0]]){
         shortLogObject[authorMessageArray[i][0]] = {
           name:  authorMessageArray[i][0],
           count: 1,
-          message: authorMessageArray[i][1]
+          email: authorMessageArray[i][2]
         }
       } else if(shortLogObject[authorMessageArray[i][0]]){
         shortLogObject[authorMessageArray[i][0]].count ++
-        shortLogObject[authorMessageArray[i][0]].message = shortLogObject[authorMessageArray[i][0]].message.concat('\n').concat(authorMessageArray[i][1])
       }
     }
    
+    let shortLogArray = []
+
     for (const entry in shortLogObject) {
       if (shortLogObject.hasOwnProperty(entry)) {
-        const element = shortLogObject[entry];
-        console.log(`${element.name} (${element.count})`)
-        console.log(element.message)
-        console.log('\n')
+        shortLogArray.push([shortLogObject[entry].count, shortLogObject[entry]])
       }
     }
 
-  });
+    shortLogArray.sort((a, b) => b[0] - a[0])
+  
+    shortLogArray.forEach((entry) => {
+      if(entry[1].count > 99){
+        entry[1].count = `   ${entry[1].count}`
+      } else if (entry[1].count > 9) {
+        entry[1].count = `    ${entry[1].count}`
+      } else {
+        entry[1].count = `     ${entry[1].count}`
+      }
+      console.log(`${entry[1].count}  ${entry[1].name} <${entry[1].email}>`)
+    })
 
-//Adam Roben (2):
-//     Add a test that shows that #309 is fixed
-//     Make tests pass in phantomjs
-//
-//Albert Casademont (1):
-//     Replace the bind() and unbind() aliases for the on() and off() functions. This is done in order to leverage jquery custom builds without the event-alias module
-//
+  });
