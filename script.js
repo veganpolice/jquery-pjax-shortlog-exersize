@@ -37,6 +37,8 @@ exec('git log', (err, stdout, stderr) => {
           email: authorMessageArray[i][2]
         }
       } else if(shortLogObject[authorMessageArray[i][0]]){
+        shortLogObject[authorMessageArray[i][0]].email ? null : shortLogObject[authorMessageArray[i][0]].email = authorMessageArray[i][2]
+        shortLogObject[authorMessageArray[i][0]].message ? null : shortLogObject[authorMessageArray[i][0]].message = authorMessageArray[i][0]
         shortLogObject[authorMessageArray[i][0]].count ++
       }
     }
@@ -59,7 +61,8 @@ exec('git log', (err, stdout, stderr) => {
       } else {
         entry[1].count = `     ${entry[1].count}`
       }
-      console.log(`${entry[1].count}  ${entry[1].name} <${entry[1].email}>`)
+
+      if(entry[1].name){console.log(`${entry[1].count}  ${entry[1].name} <${entry[1].email}>`)}
     })
 
   });
